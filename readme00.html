@@ -1,0 +1,85 @@
+<meta charset="utf-8" lang="en">
+<!-- Define the domain.
+Define the problem. What is the purpose of the language?
+Create example "solutions". What is the expected output for some examples of valid input?
+Define functionality. How is the output determined for a given input? -->
+
+                **Project 00 **
+
+The Domain
+=================
+The domain of this project is scoring and evaluation of student code. 
+
+The Problem
+================
+We would like to create an autograder for code submissions similar to what you would
+find in a beginnign coding class. The autograder will take in file names as input,
+read the code in the files, and evaluate the code based on certain predefined criteria. 
+For instance, the autograder might evaluate the code's efficiency based on number of lines,
+number of loops, number of variables, etc. The autograder can also evaluate style by checking 
+for the presence and quality of header comments. We would also like to implement a plagiarism
+checker wherein the autograder takes in two files and checks for the number of variables with the 
+same name. We understand that this is a simplification of how code is evaluated in the real world,
+but it should be effective for simple, beginner-level programs that don't take many lines of code to complete. 
+This autograder should aid in the scoring of student code and make the process more efficient for the instructor and TAs.
+
+Example Solutions
+================
+
+<!-- Note: wrapping table in div.noheader will hide the table's header -->
+<!-- Note: wrapping table in div.firstcol will style the first column different from other columns -->
+<div class=" firstcol">
+  Input                       |   Output   
+------------------------------|-------------
+submission.py; maxLoops=4     | Solution is inefficient. Too many loops.
+submission.py; maxLines=25    | Solution is inefficient. Too many lines.
+partner           | Daisy Li
+additional help   | see Reflection section
+</div>
+
+<!--   Feel free to modify the following to fit a theme of your choosing   -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet"> <!-- a sans-serif font -->
+<style>  /* A TAYLOR-INSPIRED THEME */
+    body {font-family:'Open Sans',sans-serif;}
+    .md a:link, .md a:visited {color:hsl(106, 57%, 40%); font-family:'Open Sans',sans-serif;}
+    .md table.table th {background-color:hsl(122, 54%, 34%);}
+    .md .noheader th {display:none;}
+    .md .firstcol td:first-child {white-space:pre;color:white;vertical-align:top;font-weight:bold;border-color:black;background:hsla(125, 71%, 31%, 0.644);}
+    .md .firstcol tr:nth-child(even) td:first-child {background:hsl(121, 65%, 29%);}
+</style>
+
+
+<!-- ****************************** -->
+<!--    Leave the content below     -->
+<!-- ****************************** -->
+
+<!-- The script and style below are added for clarity and to workaround a bug -->
+<script>
+    // this is a hack to workaround a bug in Markdeep+Mathjax, where
+    // `&#36;`` is automatically converted to `\(`` and `\)`` too soon.
+    // the following code will replace the innerHTML of all elements
+    // with class "dollar" with a dollar sign.
+    setTimeout(function() {
+        var dollars = document.getElementsByClassName('dollar');
+        for(var i = 0; i < dollars.length; i++) {
+            dollars[i].innerHTML = '&#' + '36;'; // split to prevent conversion to $
+        }
+    }, 1000);
+</script>
+<style>
+    /* adding some styling to <code> tags (but not <pre><code> coding blocks!) */
+    :not(pre) > code {
+        background-color: rgba(0,0,0,0.05);
+        outline: 1px solid rgba(0,0,0,0.15);
+        margin-left: 0.25em;
+        margin-right: 0.25em;
+    }
+    /* fixes table of contents of medium-length document from looking weird if admonitions are behind */
+    .md div.mediumTOC { background: white; }
+    .md div.admonition { position: initial !important; }
+</style>
+
+<!--   Leave the following Markdeep formatting code, as this will format your text above to look nice in a wed browser   -->
+<style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible");</script>
