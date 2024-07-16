@@ -13,34 +13,114 @@ The domain of this project is scoring and evaluation of student code.
 The Problem
 ================
 We would like to create an autograder for code submissions similar to what you would
-find in a beginnign coding class. The autograder will take in file names as input,
+find in a beginning coding class. The autograder will take in file names as input,
 read the code in the files, and evaluate the code based on certain predefined criteria. 
-For instance, the autograder might evaluate the code's efficiency based on number of lines,
-number of loops, number of variables, etc. The autograder can also evaluate style by checking 
-for the presence and quality of header comments. We would also like to implement a plagiarism
+For instance, the autograder might evaluate the code's efficiency based on number of loops, number of variables, and time taken to run. The autograder can also evaluate style by checking 
+for the presence and quality of header comments. Additionally, users should be able to specify specific functions and test cases that they would like to run, as well as a grading rubric
+based on how many (or percent) of test cases are passed. If one were grading assignments for a whole class, there could be functions
+such as applying a curve or printing the statistics (median, mean, high/low, ect.).
+
+We would also like to implement a plagiarism
 checker wherein the autograder takes in two files and checks for the number of variables with the 
-same name. We understand that this is a simplification of how code is evaluated in the real world,
+same name. We understand that could be a simplification of how code is evaluated in the real world,
 but it should be effective for simple, beginner-level programs that don't take many lines of code to complete. 
 This autograder should aid in the scoring of student code and make the process more efficient for the instructor and TAs.
 
 Example Solutions
 ================
-The user will submit a rubric that will be used to evaluate the code. The rubric may contain the following information:
-<div class=" firstcol.noheader">
-                                |      
-  ------------------------------|-------------
-  class                         | cs59
-  due date                      | 10/10/2024
-  late_penalty                  | .1
-  early_time                    | 24h
-  early_reward                  | .01
-  functions                     | {is_even(), is_odd(), is_prime()}
-  test_cases                    | test_cases.txt 
-  points                        | {is_even(): 10, is_odd(): 10, is_prime(): 10}
-  test_order                    | random 
-  plagiarism_threshold          | .5 
 
-  </div>
+Example 1: test cases
+------------------------
+`submission1.py`
+~~~~
+def is_even(int x):
+    # returns true if x is even and false otherwise
+    if x % 2 == 0:
+        return(True)
+    else:
+        return(False)
+~~~~
+`submission2.py`
+~~~~
+def is_even(int x):
+    # returns true if x is even and false otherwise
+    if x % 2 == 0:
+        return(False)
+    else:
+        return(True)
+~~~~
+
+`audograde.mylang`
+~~~~ none
+// some test cases
+tests = {17, False, points=2;
+         22; True, points=2;
+         0; True, points=2;
+         1; False, points=2;
+         5; False, points=2;
+}
+
+grader = new AutoGrader()
+
+// configure the autograder with basic grading info
+grader.configure {
+    due_date = 15/07/2024
+    late_penalty = .1                // 10 percent
+    early_time = 24h                 // 1 hour
+    early_reward = .01               // 1 percent
+    language = python
+    functions = {is_even()}          // list of functions to test
+    }
+
+// configure the function to grade
+grader.configure_func {
+    function = is_even
+    test_cases = tests              
+    points = 10                       // if user does not specify "points" in test_cases, points are divided evenly among test cases
+    }
+
+grader.addsubmission(name = "Jane", path = "submission1.py", day = 15/07/2024, time = 22:59)
+grader.addsubmission(name = "Joe", path = "submission2.py", day = 16/07/2024, time = 00:01)
+
+grader.grade(output = "grades.txt", show_stats = T)
+~~~~
+
+`"grades.txt"`
+~~~~ none
+Rubric:
+    Input | Output | points
+    17      False       2
+    22      True        2
+    0       True        2
+    1       False       2
+    5       False       2
+
+Jane:
+    Grade: 10/10
+    Input | Output | points | Passed?
+    17      False       2       Y
+    22      True        2       Y
+    0       True        2       Y
+    1       False       2       Y
+    5       False       2       Y
+
+Joe:
+    Grade: 0/10
+    Input | Output | points | Passed?
+    17      False       2       N
+    22      True        2       N
+    0       True        2       N
+    1       False       2       N
+    5       False       2       N
+
+Statistics
+    Points: 10
+    Mean: 5
+    Median: 5
+    Low: 0
+    High: 10
+~~~~
+
 
 Functionality
 ================
