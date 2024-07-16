@@ -25,6 +25,22 @@ This autograder should aid in the scoring of student code and make the process m
 
 Example Solutions
 ================
+The user will submit a rubric that will be used to evaluate the code. The rubric may contain the following information:
+<div class=" firstcol.noheader">
+                                |      
+  ------------------------------|-------------
+  class                         | cs59
+  due date                      | 10/10/2024
+  late_penalty                  | .1
+  early_time                    | 24h
+  early_reward                  | .01
+  functions                     | {is_even(), is_odd(), is_prime()}
+  test_cases                    | test_cases.txt 
+  points                        | {is_even(): 10, is_odd(): 10, is_prime(): 10}
+  test_order                    | random 
+  plagiarism_threshold          | .5 
+
+  </div>
 
 Functionality
 ================
@@ -40,13 +56,13 @@ Functionality
   grader.grade()                | Calculates submission grade based on test results and configuration.
   grader.classGrades()          | Calculates class statistics and prints to output file. Can also include curve. 
   grader.plagiarism()           | Given a class, compares every pair of submissions and determines what percentage of variables have the same name. 
+  grader.checkHeader()          | Given a submission, checks for the presence and quality of header comments 
 
   </div>
 
 
-The autograder will take in filenames as input, open those files, and read them.
-We will define parsing rules to identify variable names, header comments, loops, etc. in the code.
-It will then evaluate the code based on the predefined criteria and output the results.
+The autograder will take in the rubric with associated files. According to the rubric specifications,
+it will run various functions as defined above. It will then print the output to a file.
 
 <!--   Feel free to modify the following to fit a theme of your choosing   -->
 <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet"> <!-- a sans-serif font -->
