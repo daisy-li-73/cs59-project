@@ -6,6 +6,16 @@ Define functionality. How is the output determined for a given input? -->
 
                 **Project 00 **
 
+Authors
+=================
+<div class="noheader firstcol">
+    |             
+------------------|-------------
+Author            | Warren Shepard and Daisy Li
+Date              | 15 July 2024
+Credit            | Prof. Denning Office Hours
+</div>
+
 The Domain
 =================
 The domain of this project is scoring and evaluation of student code. 
@@ -28,8 +38,7 @@ This autograder should aid in the scoring of student code and make the process m
 
 Example Solutions
 ================
-
-Example 1: test cases
+Example: some very simple examples (more functionality functions discussed in functionality chart in next section!)
 ------------------------
 `submission1.py`
 ~~~~
@@ -39,6 +48,15 @@ def is_even(int x):
         return(True)
     else:
         return(False)
+
+def is_prime(n):
+    # Check if a number is prime
+    if n <= 1:
+        return False
+    for i in range(2, n):
+        if n % i == 0:
+            return False
+    return True
 ~~~~
 `submission2.py`
 ~~~~
@@ -48,35 +66,53 @@ def is_even(int x):
         return(False)
     else:
         return(True)
+
+def is_prime(n):
+    # Check if a number is prime
+    for i in range(1, n):
+        if n % i == 0:
+            return False
+    return True
 ~~~~
 
 `audograde.mylang`
 ~~~~ none
 // some test cases
-tests = {17, False, points=2;
+even_tests = {17, False, points=2;
          22; True, points=2;
          0; True, points=2;
          1; False, points=2;
          5; False, points=2;
+}
+prime_tests = {1, False, 3;
+            10, False, 3;
+            11, True, 3;
+            23, True, 3;
 }
 
 grader = new AutoGrader()
 
 // configure the autograder with basic grading info
 grader.configure {
-    due_date = 15/07/2024
-    late_penalty = .1                // 10 percent
-    early_time = 24h                 // 1 hour
-    early_reward = .01               // 1 percent
-    language = python
-    functions = {is_even()}          // list of functions to test
+    due_date = 15/07/2024,
+    late_penalty = .1,                // 10 percent
+    early_time = 24h,                 // 1 hour
+    early_reward = .01,               // 1 percent
+    language = python,
+    functions = {is_even(), prime_tests()},          // list of functions to test
     }
 
 // configure the function to grade
 grader.configure_func {
-    function = is_even
-    test_cases = tests              
-    points = 10                       // if user does not specify "points" in test_cases, points are divided evenly among test cases
+    function = is_even,
+    test_cases = tests,              
+    points = 10,                       // if user does not specify "points" in test_cases, points are divided evenly among test cases
+    }
+
+grader.configure_func {
+    function = is_prime,
+    test_cases = prime_tests,
+    points = 12
     }
 
 grader.addsubmission(name = "Jane", path = "submission1.py", day = 15/07/2024, time = 22:59)
@@ -88,37 +124,61 @@ grader.grade(output = "grades.txt", show_stats = T)
 `"grades.txt"`
 ~~~~ none
 Rubric:
-    Input | Output | points
-    17      False       2
-    22      True        2
-    0       True        2
-    1       False       2
-    5       False       2
+    is_even
+        Input | Output | points
+        17      False       2
+        22      True        2
+        0       True        2
+        1       False       2
+        5       False       2
+
+    is_prime
+        Input | Output | points
+        1        False      3
+        10       False      3
+        11       True       3
+        23       True       3
 
 Jane:
-    Grade: 10/10
-    Input | Output | points | Passed?
-    17      False       2       Y
-    22      True        2       Y
-    0       True        2       Y
-    1       False       2       Y
-    5       False       2       Y
+    Grade: 22/2
+    is_even
+        Input | Output | points | Passed?
+        17      False       2       Y
+        22      True        2       Y
+        0       True        2       Y
+        1       False       2       Y
+        5       False       2       Y
+
+    is_prime
+        Input | Output | points | Passed?
+        1        False      3       Y
+        10       False      3       Y
+        11       True       3       Y
+        23       True       3       Y
 
 Joe:
-    Grade: 0/10
-    Input | Output | points | Passed?
-    17      False       2       N
-    22      True        2       N
-    0       True        2       N
-    1       False       2       N
-    5       False       2       N
+    Grade: 0/22
+    is_even
+        Input | Output | points | Passed?
+        17      False       2       N
+        22      True        2       N
+        0       True        2       N
+        1       False       2       N
+        5       False       2       N
+
+    is_prime
+        Input | Output | points | Passed?
+        1        False      3       N
+        10       False      3       N
+        11       True       3       N
+        23       True       3       N
 
 Statistics
-    Points: 10
-    Mean: 5
-    Median: 5
+    Points: 22
+    Mean: 11
+    Median: 11
     Low: 0
-    High: 10
+    High: 22
 ~~~~
 
 
