@@ -26,19 +26,25 @@ This autograder should aid in the scoring of student code and make the process m
 Example Solutions
 ================
 
+Functionality
+================
 <!-- Note: wrapping table in div.noheader will hide the table's header -->
 <!-- Note: wrapping table in div.firstcol will style the first column different from other columns -->
 <div class=" firstcol">
-  Input                       |   Output   
-------------------------------|-------------
-submission.py; maxLoops=4     | Solution is inefficient. Too many loops.
-submission.py; maxLines=25    | Solution is inefficient. Too many lines.
-submission.py; solution.py    | 8 out of 12 variables have the same name.
-submission.py; include={"author","date","credit"}   | Missing "credit" in header comment. 
-</div>
+    Function                    |   Description   
+  ------------------------------|-------------
+  grader.configure()            | Sets various critera for grading. (see above code blocks for specs)
+  grader.configure_func()       | Sets test cases and point distributions. 
+  grader.addSubmission()        | Adds a submission (w/ metadata) to a class.
+  grader.test()                 | Tests a submission against the test cases. Can randomly select test cases,
+  or can input a graph to determine order in which to run test cases. Eg. if case 4 fails, run case 2.
+  grader.grade()                | Calculates submission grade based on test results and configuration.
+  grader.classGrades()          | Calculates class statistics and prints to output file. Can also include curve. 
+  grader.plagiarism()           | Given a class, compares every pair of submissions and determines what percentage of variables have the same name. 
 
-Functionality
-================
+  </div>
+
+
 The autograder will take in filenames as input, open those files, and read them.
 We will define parsing rules to identify variable names, header comments, loops, etc. in the code.
 It will then evaluate the code based on the predefined criteria and output the results.
