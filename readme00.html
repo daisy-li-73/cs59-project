@@ -79,10 +79,10 @@ def is_prime(n):
 ~~~~ none
 // some test cases
 even_tests = {17, False, points=2;
-         22; True, points=2;
-         0; True, points=2;
-         1; False, points=2;
-         5; False, points=2;
+         22, True, points=2;
+         0, True, points=2;
+         1, False, points=2;
+         5, False, points=2;
 }
 prime_tests = {1, False, 3;
             10, False, 3;
@@ -106,7 +106,7 @@ grader.configure {
 grader.configure_func {
     function = is_even,
     test_cases = tests,              
-    points = 10,                       // if user does not specify "points" in test_cases, points are divided evenly among test cases
+    points = 10                       // if user does not specify "points" in test_cases, points are divided evenly among test cases
     }
 
 grader.configure_func {
@@ -118,7 +118,7 @@ grader.configure_func {
 grader.addsubmission(name = "Jane", path = "submission1.py", day = 15/07/2024, time = 22:59)
 grader.addsubmission(name = "Joe", path = "submission2.py", day = 16/07/2024, time = 00:01)
 
-grader.grade(output = "grades.txt", show_stats = T)
+grader.grade(output = "grades.txt", show_stats = True)
 ~~~~
 
 `"grades.txt"`
