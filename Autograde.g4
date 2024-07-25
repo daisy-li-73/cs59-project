@@ -16,7 +16,7 @@ new : name EQUAL NEW name LPREN RPREN;
 variable : name EQUAL (test_list | id | num);
 
 // for speciying how a function should be graded
-test_list : LBRACK test_item ( test_item )* RBRACK; // specity a list of one or more tests for a function including input, expected output, and points awarded
+test_list : LBRACK test_item ( test_item )* RBRACK; // specify a list of one or more tests for a function including input, expected output, and points awarded
 test_item : ( input_list | input ) COMMA expected_output ( COMMA points )? SEMICOLON ;          // a single item or test_list containing input, expected output, and points awarded (optional)
 input_list : LBRACK input ( COMMA input )* RBRACK ;      // a list of one or more function inputs surrounded in brackets
 input : num | bool | string_literal | id ;             // input for a function: can either be a real number, boolean, string, or reference to a variable (id)

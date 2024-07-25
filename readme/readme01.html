@@ -1,0 +1,91 @@
+<meta charset="utf-8" lang="en">
+<!-- Define the domain.
+Create a grammar for the DSL.
+Test example solutions against grammar. Do you have to make corrections or changes? -->
+
+**Project 01 **
+
+Authors
+=================
+<div class="noheader firstcol">
+    |
+    ------------------|-------------
+    Author            | Warren Shepard and Daisy Li
+    Date              | 24 July 2024
+    Credit            | Prof. Denning Office Hours
+</div>
+
+Solution 1
+=================
+Parse tree for making a new class.
+<img src="./grammar_ss/new.png" alt="Screenshot showing parse tree of a new class" width="600">
+
+
+Solution 2
+================
+Parse tree for making a config list including due date and late penalty.
+<img src="./grammar_ss/config_list.png" alt="Screenshot showing parse tree of a config list" width="600">
+
+Solution 3
+================
+Parse tree for making an input list including expected output and points.
+<img src="./grammar_ss/input_list" alt="Screenshot showing parse tree of an input list" width="600">
+
+Solution 4 
+================
+Parse tree for making a method call: grader.addsubmission(name = "Jane", path = "submission1.py", day = 15/07/2024, time = 22:59)
+<img src="./grammar_ss/method_call.png" alt="Screenshot showing parse tree of a method call" width="600">
+
+Comments 
+================
+Assuming the user is good, the parse trees are accurate. Due to the complexity of the grammar,
+we could be more defensive in handling expressions. However, this defensiveness will more likely
+be implemented in the parser than the grammar, as we are separating syntax from semantics. 
+For example, if the user inputs "time = hello", the parser should be able to handle this.
+
+<!--   Feel free to modify the following to fit a theme of your choosing   -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet"> <!-- a sans-serif font -->
+<style>  /* A TAYLOR-INSPIRED THEME */
+body {font-family:'Open Sans',sans-serif;}
+.md a:link, .md a:visited {color:hsl(106, 57%, 40%); font-family:'Open Sans',sans-serif;}
+.md table.table th {background-color:hsl(122, 54%, 34%);}
+.md .noheader th {display:none;}
+.md .firstcol td:first-child {white-space:pre;color:white;vertical-align:top;font-weight:bold;border-color:black;background:hsla(125, 71%, 31%, 0.644);}
+.md .firstcol tr:nth-child(even) td:first-child {background:hsl(121, 65%, 29%);}
+</style>
+
+
+<!-- ****************************** -->
+<!--    Leave the content below     -->
+<!-- ****************************** -->
+
+<!-- The script and style below are added for clarity and to workaround a bug -->
+<script>
+    // this is a hack to workaround a bug in Markdeep+Mathjax, where
+    // `&#36;`` is automatically converted to `\(`` and `\)`` too soon.
+    // the following code will replace the innerHTML of all elements
+    // with class "dollar" with a dollar sign.
+    setTimeout(function() {
+        var dollars = document.getElementsByClassName('dollar');
+        for(var i = 0; i < dollars.length; i++) {
+            dollars[i].innerHTML = '&#' + '36;'; // split to prevent conversion to $
+        }
+    }, 1000);
+</script>
+<style>
+    /* adding some styling to <code> tags (but not <pre><code> coding blocks!) */
+    :not(pre) > code {
+        background-color: rgba(0,0,0,0.05);
+        outline: 1px solid rgba(0,0,0,0.15);
+        margin-left: 0.25em;
+        margin-right: 0.25em;
+    }
+    /* fixes table of contents of medium-length document from looking weird if admonitions are behind */
+    .md div.mediumTOC { background: white; }
+    .md div.admonition { position: initial !important; }
+</style>
+
+<!--   Leave the following Markdeep formatting code, as this will format your text above to look nice in a wed browser   -->
+<style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible");</script>
