@@ -1,0 +1,8 @@
+cs10 = new AutoGrader()
+grader.configure { due_date = 15/07/2024, late_penalty = .1, early_time = 24h, early_reward = .01, language = python, functions = {is_even(), prime_tests()}}
+grader.configure_func { function = is_even, test_cases = tests, points = 10 }
+even_tests = {17, False, points=2; 22, True, points=2; 0, True, points=2; 1, False, points=2; 5, False, points=2; }
+prime_tests = {1, False, 3; 10, False, 3; 11, True, 3; 23, True, 3;}
+grader.addSubmission(name = "Jane", path = "submission1.py", day = 15/07/2024, time = 22:59)
+grader.addSubmission(name = "Joe", path = "submission2.py", day = 16/07/2024, time = 00:01)
+grader.grade(output = "grades.txt", show_stats = True)
