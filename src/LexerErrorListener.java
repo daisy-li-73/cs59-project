@@ -1,6 +1,4 @@
-import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.*;
 
 /*
  * CS59 P02: Functional Parser
@@ -9,9 +7,8 @@ import org.antlr.v4.runtime.Recognizer;
  * Credit: Warren and Daisy code from assignment 01 and 02 and class slides
  */
 
-public class SilentErrorListener extends BaseErrorListener {
+public class LexerErrorListener extends BaseErrorListener {
     private boolean error = false;
-    public static final SilentErrorListener INSTANCE = new SilentErrorListener();
 
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,

@@ -1,0 +1,163 @@
+even_tests = {17, False, points=2;
+         22, True, points=2;
+         0, True, points=2;
+         1, False, points=2;
+         5, False, points=ab;
+}
+
+---
+
+grader = new new AutoGrader()
+
+---
+
+grader = new Autograder
+
+---
+
+grader.configure {
+    due_date = whenever you feel like it!
+    }
+
+---
+
+grader.configure {
+    due_date = 15/07/2024,
+    late_penalty = .1,
+    early_time = 24h,
+    early_reward = .01,
+    language = python,
+    functions = {is_even(), prime_tests()}
+    }
+    }
+
+---
+
+grader_configure_func {
+    function = is_even(),
+    test_cases = tests,
+    points = 10
+    }
+
+---
+
+jskdhfawnaruihgaihu9ty0 38fhn1389ph9hvc98   dj2vb13498t80u128g385fcwaon483838
+
+---
+
+grader.configure_func {
+    function = is_even(),
+    test_cases = tests,
+    point = 10
+    }
+
+---
+
+grader =
+
+---
+
+grader.configure_func {
+    function = 123(),
+    test_cases = tests,
+    point = 10
+    }
+
+---
+
+grader.configure_func {
+    function = is_even(),
+    test_cases = tests,
+    point = 10
+    }
+
+---
+
+prime_tests = {1, False, 3
+            10, False, 3;
+            11, True, 3;
+            23, True, 3;
+}
+
+---
+
+prime_tests = {1, False, 3;
+            10, False, 3;
+            11, True, True;
+            23, True, 3;
+}
+
+---
+
+prime_tests = (1, False, 3;
+            10, False, 3;
+            11, True, 3;
+            23, True, 3;
+)
+
+---
+
+prime_tests = {1, False, 3;
+            10, False, 3;
+            11, True, 3;
+            23, True, 3;
+
+---
+
+prime_tests = {1, False, 3;
+            10, False, 3;
+            11, True, 3;
+            23, True, True, 3;
+            }
+
+---
+
+prime_tests = {}
+
+---
+
+grader.grade(output = "grades.txt", show_stats = )
+
+---
+
+grader.grade(output = "grades.txt", show_stats = True)a
+
+---
+
+x = 5
+y = 2
+z = x+y
+
+---
+
+grader.configure {
+    due_date = ,
+    late_penalty = .1,
+    early_time = 24h,
+    early_reward = .01,
+    language = python,
+    functions = {is_even(), prime_tests()}
+    }
+
+---
+
+grader.configure {
+    due_date = 15/07/2024,
+    late_penalty = turn it in whenever you want!,
+    early_time = 24h,
+    early_reward = .01,
+    language = python,
+    functions = {is_even(), prime_tests()}
+    }
+
+---
+
+grader.configure {
+    due_date = 15/07/2024,
+    late_penalty = 0.1,
+    early_time = 24h,
+    early_reward = .01,
+    language = python,
+    functions = {is_even(), prime_tests()},
+    students = {Warren, Daisy}
+    }
