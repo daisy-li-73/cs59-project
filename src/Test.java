@@ -1,8 +1,7 @@
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 
 /*
  * CS59 P02: Functional Parser
