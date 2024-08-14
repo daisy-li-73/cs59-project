@@ -15,7 +15,7 @@ public class Test {
 
         //-------------------------------
         // IMPORTANT: Change below line to change the file being read!
-        BufferedReader reader = new BufferedReader(new FileReader("inputs/valid_tests.txt"));
+        BufferedReader reader = new BufferedReader(new FileReader("inputs/invalid_tests.txt"));
         //-------------------------------
 
         // create error listeners
