@@ -2,9 +2,9 @@ import java.util.ArrayList;
 
 public class TestCase {
     int points;
-    ArrayList<String> parameters;
+    int[] parameters;
 
-    TestCase(ArrayList<String> parameters, int points) {
+    TestCase(int[] parameters, int points) {
         this.parameters = parameters;
         this.points = points;
     }
