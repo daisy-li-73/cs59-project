@@ -1,0 +1,712 @@
+<meta charset="utf-8" lang="en">
+
+                **Project 03: ANTLR Translation **
+
+Authors
+=================
+<div class="noheader firstcol">
+    |             
+------------------|-------------
+Author            | Warren Shepard and Daisy Li
+Date              | 14 August 2024
+</div>
+
+
+ANTLR Grammar
+=================
+
+For the grader's convenience, the ANRTLR Grammar is shown below. Since the purpose of our grammr is to
+provide a convenient method to autograde assignment submissions from students,
+we decided that Java classes were necessary to organize data. We decided to create 4 Java classesː `TestCase` to represent a single test case,
+`Function` to represent a single function, `Grader` to represent the grader itself, and `Submission` to represent a single submission.
+Details about the classes follow in the next section. 
+
+`Autograde.g4`
+~~~~ none
+grammar Autograde;
+
+// Author: Warren Shepard and Daisy Li
+// Date: 24 July 2024
+// Credit: code from A01/A02 and slides
+
+// getting started
+start : list ;
+list : expr | list expr ;
+expr : new | variable | configure | test_list | method_call ;
+
+// for making new grader
+new : name EQUAL NEW name LPREN RPREN;
+
+// for variables
+variable : name EQUAL (test_list | id | num);
+
+// for speciying how a function should be graded
+test_list : LBRACK test_item ( test_item )* RBRACK; // specity a list of one or more tests for a function including input, expected output, and points awarded
+test_item : ( input_list | input ) COMMA expected_output ( COMMA points )? SEMICOLON ;          // a single item or test_list containing input, expected output, and points awarded (optional)
+input_list : LBRACK input ( COMMA input )* RBRACK ;      // a list of one or more function inputs surrounded in brackets
+input : num | bool | string_literal | id ;             // input for a function: can either be a real number, boolean, string, or reference to a variable (id)
+expected_output : num | bool | string_literal ;        // expected output of a function
+points : num | POINTS EQUAL num ;                      // can either input points or "points = ___ "
+
+// for configureing the grader
+configure : id DOT CONFIGURE (UNDERSCORE id)? LBRACK config_list RBRACK;
+config_list : config_item (COMMA config_item)* ;
+config_item : config_key EQUAL config_value ;
+config_key : DUE_DATE | LATE_PENALTY | EARLY_TIME | EARLY_REWARD | LANGUAGE | FUNCTIONS | FUNCTION | TEST_CASES |POINTS ;
+config_value : time | date | name | function_name | function_list | id | num ;
+function_list : LBRACK function_name ( COMMA function_name )* RBRACK ;
+
+// for method_call
+method_call : id DOT name method_list ;
+method_list : LPREN method_item (COMMA method_item)* RPREN ;
+method_item : name EQUAL method_item_val ;
+method_item_val : STRING | date | submission_time | bool | function_name;
+
+// general "helpers"
+id : LETTER (LETTER | DIGIT)* ;
+submission_time : DIGIT DIGIT COLON DIGIT DIGIT ;    // hour:minutes (in 24 hour time)
+name : LETTER (LETTER | UNDERSCORE | DIGIT)+ ;
+function_name : name LPREN RPREN ;
+num : DIGIT+ | decimal ;
+decimal : DIGIT* DOT DIGIT+ ;
+bool : TRUE | FALSE ;
+string_literal : STRING ;
+date : DIGIT DIGIT SLASH DIGIT DIGIT SLASH DIGIT DIGIT DIGIT DIGIT ; // in day/month/year format
+time : num LETTER ;                                   // number + minutes (m) hours (h) or days (d)
+
+// tokens
+DIGIT : [0-9];
+LETTER : [a-zA-Z];
+SEMICOLON : ';';
+LBRACK : '{' ;
+RBRACK : '}' ;
+LPREN : '(' ;
+RPREN : ')' ;
+EQUAL : '=' ;
+COLON : ':' ;
+FALSE : 'False' ;
+TRUE : 'True' ;
+COMMA : ',' ;
+DOT : '.' ;
+UNDERSCORE : '_' ;
+SLASH : '/' ;
+NEW : 'new' ;
+
+// a string contians escape chars or any char that is not (which we use the tilde to denote)
+// a double quote, backslash, carriage return, or newline
+STRING : '"' ( ESC | ~["\\\r\n] )* '"' ;
+fragment ESC : '\\' [btnfr"\\] ;
+
+WS : [ \t\r\n]+ -> skip;
+
+// KEYWORDS
+CONFIGURE : 'configure' ;
+
+// for function grading
+POINTS : 'points' ;
+TEST_CASES : 'test_cases' ;
+FUNCTION : 'function' ;
+
+// for general configure
+DUE_DATE : 'due_date' ;
+LATE_PENALTY : 'late_penalty' ;
+EARLY_TIME : 'early_time' ;
+EARLY_REWARD : 'early_reward' ;
+LANGUAGE : 'language' ;
+FUNCTIONS : 'functions' ;
+~~~~
+
+Java Classes
+=================
+
+`TestCase.java`
+~~~~
+import java.util.ArrayList;
+
+public class TestCase {
+    int points;
+    ArrayList<String> parameters;
+
+    TestCase(ArrayList<String> parameters, int points) {
+        this.parameters = parameters;
+        this.points = points;
+    }
+
+    public int getPoints() { return points; }
+}
+~~~~
+
+`Function.java`
+~~~~
+import java.util.ArrayList;
+
+public class Function {
+    String name;
+    ArrayList<TestCase> testcases;
+    int points;
+
+    Function(String name) {
+        this.name = name;
+        this.testcases = new ArrayList<TestCase>();
+    }
+
+    public void addTestcase(TestCase tc) { testcases.add(tc); }
+    public ArrayList<TestCase> getTestcases() { return testcases; }
+    public void setPoints(int p) { points = p;}
+    public int getPoints() { return points; }
+}
+~~~~
+
+`Submission.java`
+~~~~
+public class Submission {
+    private String name;
+    private String path;
+    private String day;
+    private String time;
+    private int score;
+
+    public Submission(String name, String path, String day, String time) {
+        this.name = name;
+        this.path = path;
+        this.day = day;
+        this.time = time;
+        score = 0;
+    }
+
+    public String getName() { return name; }
+    public String getPath() { return path; }
+    public String getDay() { return day; }
+    public String getTime() { return time; }
+    public int getScore() { return score; }
+
+    public void setName(String n) { name = n; }
+    public void setPath(String p) { path = p; }
+    public void setDay(String d) { day = d; }
+    public void setTime(String t) { time = t; }
+    public void setScore(int s) { score = s; }
+}
+~~~~
+
+`Grader.java`
+~~~~
+import java.util.ArrayList;
+import java.util.Collections;
+
+public class Grader {
+//    hardcoding these in; on parser side, if one of these don't exist just set it to null.
+    private String due_date;
+    private Double late_penalty;
+    private String early_time;
+    private Double early_reward;
+    private ArrayList<String> functions;
+    private ArrayList<Submission> submissions;
+
+    Grader(
+            String due_date,
+    Double late_penalty,
+    String early_time,
+    Double early_reward,
+    ArrayList<String> functions) {
+        this.due_date = due_date;
+        this.late_penalty = late_penalty;
+        this.early_time = early_time;
+        this.early_reward = early_reward;
+        this.functions = functions;
+        this.submissions = new ArrayList<Submission>();
+    }
+
+    public void addSubmission(Submission s) {
+        submissions.add(s);
+    }
+
+    public void setDue_date(String dd) { due_date = dd; }
+    public void setLate_penalty(Double lp) { late_penalty = lp; }
+    public void setEarly_time(String et) { early_time = et; }
+    public void setEarly_reward(Double er) { early_reward = er; }
+    public void setFunctions(ArrayList<String> f) { functions = f; }
+
+    public String getDue_date() { return due_date; }
+    public Double getLate_penalty() { return late_penalty; }
+    public String getEarly_time() { return early_time; }
+    public Double getEarly_reward() { return early_reward; }
+    public ArrayList<String> getFunctions() { return functions; }
+
+//    actually run the test case
+
+    public int calc_mean() {
+        int sum = 0;
+        for (int i = 0; i < submissions.size(); i++) {
+            Submission s = submissions.get(i);
+            sum += s.getScore();
+        }
+        return sum / submissions.size();
+    }
+
+    public int calc_median() {
+        ArrayList<Integer> scores = new ArrayList<>();
+        int size = submissions.size();
+        for (int i = 0; i < size; i++) {
+            Submission s = submissions.get(i);
+            scores.add(s.getScore());
+        }
+        Collections.sort(scores);
+
+        if (size % 2 == 0) {
+            return (scores.get(size%2) + scores.get((size%2) - 1)) / 2;
+        }
+        else {
+            return scores.get( size / 2);
+        }
+    }
+
+    public int calc_range() {
+        ArrayList<Integer> scores = new ArrayList<>();
+        int size = submissions.size();
+        for (int i = 0; i < size; i++) {
+            Submission s = submissions.get(i);
+            scores.add(s.getScore());
+        }
+        Collections.sort(scores);
+        return scores.get(size-1) - scores.get(0);
+    }
+
+
+}
+~~~~
+
+Testing
+=================
+
+The following file (`Test.java`) was used to test our grammar and autogenerated parser. Note that it since it is purely for testing purposes, it assumes that test
+cases are seperated by `---` so that we could put all of our test cases in the same file instead of making many many files for testing. Typically, different inputs will be in differnt files.
+
+`Test.java`
+~~~~
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+/*
+ * CS59 P02: Functional Parser
+ * Author: Warren Shepard and Daisy li
+ * Date: 30 July 2024
+ * Credit: Warren and Daisy code from assignment 01 and 02 and class slides
+ */
+
+public class Test {
+    public static void main(String[] args) throws Exception {
+
+        //-------------------------------
+        // IMPORTANT: Change below line to change the file being read!
+        BufferedReader reader = new BufferedReader(new FileReader("inputs/invalid_tests.txt"));
+        //-------------------------------
+
+        // create error listeners
+        SilentErrorListener errorListener = new SilentErrorListener();
+        LexerErrorListener lexerErrorListener = new LexerErrorListener();
+
+        StringBuilder fileContent = new StringBuilder();
+        String line = reader.readLine();
+
+        while(line != null) {
+            fileContent.append(line).append("\n");
+            line = reader.readLine();
+        }
+        reader.close();
+
+        String[] sections = fileContent.toString().split("---");
+        int testNumber = 1;
+
+        for (String section : sections) {
+            System.out.print("Processing test: " + testNumber);
+            CharStream input = CharStreams.fromString(section);
+            AutogradeLexer lexer = new AutogradeLexer(input);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            AutogradeParser parser = new AutogradeParser(tokens);
+
+            // add custom error listeners
+            parser.removeErrorListeners();
+            parser.addErrorListener(errorListener);
+            lexer.addErrorListener(lexerErrorListener);
+
+            parser.start();
+
+            // check for errors
+            if (errorListener.error() || lexerErrorListener.error() || tokens.LA(1) != Token.EOF) {
+                System.out.println(" INVALID :(");
+            } else {
+                System.out.println(" VALID :)");
+            }
+
+            // reset error listeners
+            errorListener.reset();
+            lexerErrorListener.reset();
+
+            testNumber++;
+            Thread.sleep(100); // Sleep to make sure errors get printed along with test number (if this statement is not there then they will not)
+        }
+    }
+}
+~~~~
+
+The following two files were used for testing valid and invalid test cases. Below each file, a screenshot of the result is shown as proof of correctness/incorrectness.
+Note that some correct/incorrect inputs show only sections of a script to hilight the correcness/incorectness they are portraying.
+
+`valid_tests.txt`
+~~~~ none
+even_tests = {17, False, points=2;
+    22, True, points=2;
+    0, True, points=2;
+    1, False, points=2;
+    5, False, points=2;
+}
+
+---
+
+prime_tests = {1, False, 3;
+       10, False, 3;
+       11, True, 3;
+       23, True, 3;
+}
+
+---
+
+grader = new AutoGrader()
+
+---
+
+grader.configure {
+due_date = 15/07/2024,
+late_penalty = .1,
+early_time = 24h,
+early_reward = .01,
+language = python,
+functions = {is_even(), prime_tests()}
+}
+
+---
+
+grader.configure_func {
+function = is_even(),
+test_cases = tests,
+points = 10
+}
+
+---
+
+grader.configure_func {
+function = is_prime(),
+test_cases = prime_tests,
+points = 12
+}
+
+---
+
+grader.addsubmission(name = "Jane", path = "submission1.py", day = 15/07/2024, time = 22:59)
+
+---
+
+grader.addsubmission(name = "Joe", path = "submission2.py", day = 16/07/2024, time = 00:01)
+
+grader.grade(output = "grades.txt", show_stats = True)
+
+---
+
+even_tests = {17, False, points=2;
+    22, True, points=2;
+    0, True, points=2;
+    1, False, points=2;
+    5, False, points=2;
+}
+
+---
+
+grader.configure_func {
+function = bfs()
+}
+
+---
+
+prime_tests = {1, False, 3;
+       10, False, 3;
+       11, True, 3;
+       23, True, 3;
+}
+
+grader = new AutoGrader()
+
+grader.configure {
+due_date = 15/07/2024,
+late_penalty = .1,
+early_time = 24h,
+early_reward = .01,
+language = python,
+functions = {is_even(), prime_tests()}
+}
+
+grader.configure_func {
+function = is_even(),
+test_cases = tests,
+points = 10
+}
+
+grader.configure_func {
+function = is_prime(),
+test_cases = prime_tests,
+points = 12
+}
+
+grader.addsubmission(name = "Jane", path = "submission1.py", day = 15/07/2024, time = 22:59)
+grader.addsubmission(name = "Joe", path = "submission2.py", day = 16/07/2024, time = 00:01)
+
+grader.grade(output = "grades.txt", show_stats = True)
+
+---
+
+gr = new AutoGrader()
+
+tests = {1, 1, 4;
+    2, 2, 6;
+    3, 5, 6;
+}
+
+gr.configure {
+due_date = 31/07/2024,
+language = python,
+functions = {foo()}
+}
+
+gr.configure_func {
+function = foo(),
+test_cases = tests,
+points = 16
+}
+
+gr.addsubmission(name = "Jane", path = "submission1.py", day = 15/07/2024, time = 22:59)
+gr.addsubmission(name = "Joe", path = "submission2.py", day = 16/07/2024, time = 00:01)
+
+gr.grade(output = "class_grades.txt")
+~~~~
+
+<img src="https://raw.githubusercontent.com/warrenshepard/cs59-final/main/parser_ss/valid_tests.png" alt="blah" width="600">
+
+`invalid_tests.txt`
+~~~~ none
+even_tests = {17, False, points=2;
+    22, True, points=2;
+    0, True, points=2;
+    1, False, points=2;
+    5, False, points=ab;
+}
+
+---
+
+grader = new new AutoGrader()
+
+---
+
+grader = new Autograder
+
+---
+
+grader.configure {
+due_date = whenever you feel like it!
+}
+
+---
+
+grader.configure {
+due_date = 15/07/2024,
+late_penalty = .1,
+early_time = 24h,
+early_reward = .01,
+language = python,
+functions = {is_even(), prime_tests()}
+}
+}
+
+---
+
+grader_configure_func {
+function = is_even(),
+test_cases = tests,
+points = 10
+}
+
+---
+
+jskdhfawnaruihgaihu9ty0 38fhn1389ph9hvc98   dj2vb13498t80u128g385fcwaon483838
+
+---
+
+grader.configure_func {
+function = is_even(),
+test_cases = tests,
+point = 10
+}
+
+---
+
+grader =
+
+---
+
+grader.configure_func {
+function = 123(),
+test_cases = tests,
+point = 10
+}
+
+---
+
+grader.configure_func {
+function = is_even(),
+test_cases = tests,
+point = 10
+}
+
+---
+
+prime_tests = {1, False, 3
+       10, False, 3;
+       11, True, 3;
+       23, True, 3;
+}
+
+---
+
+prime_tests = {1, False, 3;
+       10, False, 3;
+       11, True, True;
+       23, True, 3;
+}
+
+---
+
+prime_tests = (1, False, 3;
+       10, False, 3;
+       11, True, 3;
+       23, True, 3;
+)
+
+---
+
+prime_tests = {1, False, 3;
+       10, False, 3;
+       11, True, 3;
+       23, True, 3;
+
+---
+
+prime_tests = {1, False, 3;
+       10, False, 3;
+       11, True, 3;
+       23, True, True, 3;
+       }
+
+---
+
+prime_tests = {}
+
+---
+
+grader.grade(output = "grades.txt", show_stats = )
+
+---
+
+grader.grade(output = "grades.txt", show_stats = True)a
+
+---
+
+x = 5
+y = 2
+z = x+y
+
+---
+
+grader.configure {
+due_date = ,
+late_penalty = .1,
+early_time = 24h,
+early_reward = .01,
+language = python,
+functions = {is_even(), prime_tests()}
+}
+
+---
+
+grader.configure {
+due_date = 15/07/2024,
+late_penalty = turn it in whenever you want!,
+early_time = 24h,
+early_reward = .01,
+language = python,
+functions = {is_even(), prime_tests()}
+}
+
+---
+
+grader.configure {
+due_date = 15/07/2024,
+late_penalty = 0.1,
+early_time = 24h,
+early_reward = .01,
+language = python,
+functions = {is_even(), prime_tests()},
+students = {Warren, Daisy}
+}
+~~~~
+
+<img src="https://raw.githubusercontent.com/warrenshepard/cs59-final/main/parser_ss/invalid_tests.png" alt="blah" width="600">
+
+
+
+<!--   Feel free to modify the following to fit a theme of your choosing   -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet"> <!-- a sans-serif font -->
+<style>  /* A TAYLOR-INSPIRED THEME */
+    body {font-family:'Open Sans',sans-serif;}
+    .md a:link, .md a:visited {color:hsl(106, 57%, 40%); font-family:'Open Sans',sans-serif;}
+    .md table.table th {background-color:hsl(122, 54%, 34%);}
+    .md .noheader th {display:none;}
+    .md .firstcol td:first-child {white-space:pre;color:white;vertical-align:top;font-weight:bold;border-color:black;background:hsla(125, 71%, 31%, 0.644);}
+    .md .firstcol tr:nth-child(even) td:first-child {background:hsl(121, 65%, 29%);}
+</style>
+
+
+<!-- ****************************** -->
+<!--    Leave the content below     -->
+<!-- ****************************** -->
+
+<!-- The script and style below are added for clarity and to workaround a bug -->
+<script>
+    // this is a hack to workaround a bug in Markdeep+Mathjax, where
+    // `&#36;`` is automatically converted to `\(`` and `\)`` too soon.
+    // the following code will replace the innerHTML of all elements
+    // with class "dollar" with a dollar sign.
+    setTimeout(function() {
+        var dollars = document.getElementsByClassName('dollar');
+        for(var i = 0; i < dollars.length; i++) {
+            dollars[i].innerHTML = '&#' + '36;'; // split to prevent conversion to $
+        }
+    }, 1000);
+</script>
+<style>
+    /* adding some styling to <code> tags (but not <pre><code> coding blocks!) */
+    :not(pre) > code {
+        background-color: rgba(0,0,0,0.05);
+        outline: 1px solid rgba(0,0,0,0.15);
+        margin-left: 0.25em;
+        margin-right: 0.25em;
+    }
+    /* fixes table of contents of medium-length document from looking weird if admonitions are behind */
+    .md div.mediumTOC { background: white; }
+    .md div.admonition { position: initial !important; }
+</style>
+
+<!--   Leave the following Markdeep formatting code, as this will format your text above to look nice in a wed browser   -->
+<style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible");</script>
