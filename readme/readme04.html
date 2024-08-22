@@ -1,0 +1,433 @@
+<meta charset="utf-8" lang="en">
+
+                **Project 03: ANTLR Translation **
+
+Authors
+=================
+<div class="noheader firstcol">
+    |             
+------------------|-------------
+Author            | Warren Shepard and Daisy Li
+Date              | 21 August 2024
+</div>
+
+Project Overview
+=================
+Recall that the goal of our project was to create a language which can be used to congigure and execute an autograder for a Computer Science Course.
+More specifically, an introductory coding course taught in Java which requires students to submit files complete with multiple methods, for which there
+are objective correct/incorrect outputs for particular inputs. Given parameters including (but not limited to) test cases, points, and late pentalities,
+the autograder grades each students submission based on if the test cases pass or fail. Statistics are also calculated and printed to a specified .txt file.
+
+The modivation of this project is that grading can be tetious and time consuming, especially when running the same functions with the same test cases over and over again.
+Additionally, a grader is prone to user error when grading submission by submission. A much easier alternative would be to have an autograde which can be configured by 
+our language. Once it is configured, all the grader has to do is press the run button and everything gets graded!
+
+Division of work
+=================
+<div class="noheader firstcol">
+    |             
+------------------|-------------
+00: Selection                   | Warren and Daisy worked together to brainstorm some ideas for the project. Eventually, they settled on the idea of an autograder and came up with some functions that should be supported. They also collaborated to write a few examples of what some basic input should look like.
+01: Grammar                     | Warren and Daisy wrote a few more examples of what the autograder configuration file should look like. Then, they both sat down for a few hours and worked on typing a formal Grammar up in a .g4 file.
+02: Functional Parser           | This step was relatively straightforward given that the grammar file was already 99% complete. Warren wrote the code for the parser and validating/invalidating inputs while Daisy worked on coming up with a ton of valid/invalid inputs and testing them.
+03: Functional Translator       | This was the largest and most time consuming step in our project. First, Daisy and Warren met to discuss how this should be implemneted and what the structure should look like, as there were a lot of moving parts to consider. After they agreed on a plan, Daisy wrote the "backend" organization including many Java classes to organize all the parameters the user input and grading data. Then, Warren wrote listeners and wired everything up. A large part of this included translating due dates/submission times the grader inputed and figuring out how early/late each student submitted their assignment. Another challenge was figuring out how to "run" the students code and get the output without actually having to physically press the run button.
+04: Documentation               | Warren and Daisy worked together to make the final example and complete the write up.
+</div>
+
+Discussion of Project and Relevance
+=================
+As already mentioned, using our language to autograde assignments is much better than doing it by hand and going through submission by submission to grade.
+This would take way to long so autograding is defintly better! Of course, it is also possible to write an autograder without designing a whole new language. Some advantages
+that this might have is that it takes less time (espeiclly since you don't have to worry about grammar and input validation) and that it is more flexible to changes than a model with 
+it's own language. However, the benifit of designing a language to do this is that the frontend looks and feels clean and is very user friendly. All you have to do is write a simple configure
+file and all the paramaters are laid out right in front of you. Additionally, you don't have to worry about "which methods to call" as you would have to do if you implemented an autograder
+without its own language. Therefore, the focus shifts to the actual task at hand--grading all the submissions--instead of remembering how to use it. Additionally, once you have created a configure
+file once it's very easy to replicate it, and in many cases you can just copy-paste old ones and change the test cases/parameters around. This makes it very easy for a professor/grader to use the 
+autograder. Though the first time using it may take a little longer, every other time will take only minutes.
+
+Reflection
+=================
+Completing this project defintly enhanced Warren and Daisy's understanding of the course material (especially from the first half of the course) since it was a great 
+opportunity to "put everything together" and make something that could have a very useful application. Additionally, it was cool to work with a grammar thaw was much more complex than
+any other grammar we'd worked with in this course. In addition, designing the grammar gave us new insights since we had only worked with grammars but had never actually made one. One thing that 
+we both found interesting is that there is a lot of flexibility on how errors are handles. For example, you it is up to the designer on whether some particular errors 
+are syntax erros or runtime errors. Our grammar was a bit more on the "strict" side becuase we chose to designate many these "boarderline" potential errors as syntax errors. Lastly, the most satisfying
+part of the project was actually seeing the whole thing work at the end! We put in a lot of hard work and thought into designing and linking all of the parts of our project together,
+and the whole process ended up being very rewarding!
+
+ANTLR Grammar
+=================
+
+For the grader's convenience, the ANRTLR Grammar is shown below. 
+
+`Autograde.g4`
+~~~~ none
+grammar Autograde;
+
+// Author: Warren Shepard and Daisy Li
+// Date: 24 July 2024
+// Credit: code from A01/A02 and slides
+
+// getting started
+start : list ;
+list : expr | list expr ;
+expr : new | variable | configure | test_list | method_call ;
+
+// for making new grader
+new : name EQUAL NEW name LPREN RPREN;
+
+// for variables
+variable : name EQUAL (test_list | id | num);
+
+// for speciying how a function should be graded
+test_list : LBRACK test_item ( test_item )* RBRACK; // specity a list of one or more tests for a function including input, expected output, and points awarded
+test_item : ( input_list | input ) COMMA expected_output ( COMMA points )? SEMICOLON ;          // a single item or test_list containing input, expected output, and points awarded (optional)
+input_list : LBRACK input ( COMMA input )* RBRACK ;      // a list of one or more function inputs surrounded in brackets
+input : num | bool | string_literal | id ;             // input for a function: can either be a real number, boolean, string, or reference to a variable (id)
+expected_output : num | bool | string_literal ;        // expected output of a function
+points : num | POINTS EQUAL num ;                      // can either input points or "points = ___ "
+
+// for configureing the grader
+configure : id DOT CONFIGURE (UNDERSCORE id)? LBRACK config_list RBRACK;
+config_list : config_item (COMMA config_item)* ;
+config_item : config_key EQUAL config_value ;
+config_key : DUE_DATE | LATE_PENALTY | EARLY_TIME | EARLY_REWARD | LANGUAGE | FUNCTIONS | FUNCTION | TEST_CASES |POINTS ;
+config_value : time | date | name | function_name | function_list | id | num ;
+function_list : LBRACK function_name ( COMMA function_name )* RBRACK ;
+
+// for method_call
+method_call : id DOT name method_list ;
+method_list : LPREN method_item (COMMA method_item)* RPREN ;
+method_item : name EQUAL method_item_val ;
+method_item_val : STRING | date | submission_time | bool | function_name;
+
+// general "helpers"
+id : LETTER (LETTER | DIGIT)* ;
+submission_time : DIGIT DIGIT COLON DIGIT DIGIT ;    // hour:minutes (in 24 hour time)
+name : LETTER (LETTER | UNDERSCORE | DIGIT)+ ;
+function_name : name LPREN RPREN ;
+num : DIGIT+ | decimal ;
+decimal : DIGIT* DOT DIGIT+ ;
+bool : TRUE | FALSE ;
+string_literal : STRING ;
+date : DIGIT DIGIT SLASH DIGIT DIGIT SLASH DIGIT DIGIT DIGIT DIGIT ; // in day/month/year format
+time : num LETTER ;                                   // number + minutes (m) hours (h) or days (d)
+
+// tokens
+DIGIT : [0-9];
+LETTER : [a-zA-Z];
+SEMICOLON : ';';
+LBRACK : '{' ;
+RBRACK : '}' ;
+LPREN : '(' ;
+RPREN : ')' ;
+EQUAL : '=' ;
+COLON : ':' ;
+FALSE : 'False' ;
+TRUE : 'True' ;
+COMMA : ',' ;
+DOT : '.' ;
+UNDERSCORE : '_' ;
+SLASH : '/' ;
+NEW : 'new' ;
+
+// a string contians escape chars or any char that is not (which we use the tilde to denote)
+// a double quote, backslash, carriage return, or newline
+STRING : '"' ( ESC | ~["\\\r\n] )* '"' ;
+fragment ESC : '\\' [btnfr"\\] ;
+
+WS : [ \t\r\n]+ -> skip;
+
+// KEYWORDS
+CONFIGURE : 'configure' ;
+
+// for function grading
+POINTS : 'points' ;
+TEST_CASES : 'test_cases' ;
+FUNCTION : 'function' ;
+
+// for general configure
+DUE_DATE : 'due_date' ;
+LATE_PENALTY : 'late_penalty' ;
+EARLY_TIME : 'early_time' ;
+EARLY_REWARD : 'early_reward' ;
+LANGUAGE : 'language' ;
+FUNCTIONS : 'functions' ;
+~~~~
+
+Final Example Input and Output
+=================
+
+We start with submission for three students shown below:
+`Example1.Java`
+~~~~
+/**
+ * Example submission for student 1: Prof. Denning
+ * Submitted on 21 Aug 2024 @ 8:11 AM
+ */
+
+public class Example1 {
+    public boolean isEven(int n) {
+        return n % 2 == 0;
+    }
+    public int add(int a, int b) {
+        return a + b;
+    }
+    public static boolean isPrime(int number) {
+        if (number <= 1) {
+            return false; // 0 and 1 not primes numbers
+        }
+        if (number == 2 || number == 3) {
+            return true; // 2 and 3 are prime numbers
+        }
+        if (number % 2 == 0 || number % 3 == 0) {
+            return false; // Eliminate multiples of 2 and 3
+        }
+
+        // Check divisibility from 5 onwards
+        for (int i = 5; i * i <= number; i += 6) {
+            if (number % i == 0 || number % (i + 2) == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+    public static int fibonacci(int n) {
+        if (n <= 1) {
+            return n;
+        }
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+}
+~~~~
+`Example2.Java`
+~~~~
+/**
+* Example submission for student 2: Warren
+* Submitted on 21 Aug 2024 @ 11:59 PM
+*/
+
+public class Example2 {
+   public boolean isEven(int n) {
+       return n % 2 == 1;
+   }
+   public int add(int a, int b) {
+       return a - b;
+   }
+   public static boolean isPrime(int number) {
+       for (int i = 2; i <= 12; i++) {
+           if (number % i == 0) {
+               return false;
+           }
+       }
+       return number > 1;
+   }
+   public static int fibonacci(int n) {
+       if (n <= 1) {
+           return n;
+       }
+       return fibonacci(n - 1) + fibonacci(n - 1);
+   }
+}
+~~~~
+`Example3.Java`
+~~~~
+/**
+ * Example submission for student 3: Daisy
+ * Submitted on 22 Aug 2024 @ 02:23 AM (late)
+ */
+
+public class Example3 {
+    public boolean isEven(int n) {
+        return n % 2 == 0;
+    }
+    public int add(int a, int b) {
+        return a;
+    }
+    public static boolean isPrime(int number) {
+        for (int i = 2; i <= Math.sqrt(number); i++) {
+            if (number % i == 0) {
+                return false;
+            }
+        }
+        return number > 1;
+    }
+    public static int fibonacci(int n) {
+        if (n <= 1) {
+            return n;
+        }
+
+        int a = 0, b = 1;
+        for (int i = 2; i <= n; i++) {
+            int temp = b;
+            b = a + b;
+            a = temp;
+        }
+        return b;
+    }
+}
+~~~~
+
+Next, we created a configure file for an assignment worth 80 points:
+`final_example`
+~~~~ none
+gr = new AutoGrader()
+
+iseven_tests = {1, False, 4;
+         2, True, 4;
+         3, False, 4;
+         99, False, 4;
+         10000, True, 4;
+}
+
+add_tests = {{1, 2}, 3, 5;
+         {0, 0}, 0, 5;
+         {10, 11}, 21, 5;
+         {11341, 102}, 11443, 5;
+}
+
+prime_tests = {1, False, 4;
+         2, True, 4;
+         17, True, 4;
+         9, False, 4;
+         271, True, 4;
+}
+fibonacci_tests = {1, 1, points = 4;
+                   5, 5, points = 4;
+                   8, 21, points = 4;
+                   13, 233, points = 4;
+                   18, 2584, points = 4;
+}
+
+gr.configure {
+    due_date = 08/21/2024,
+    late_penalty = .1,
+    early_time = 2h,
+    early_reward = .02,
+    language = python,
+    functions = {isEven(), add(), isPrime(), fibonacci()}
+    }
+
+gr.configure_func {
+    function = isEven(),
+    test_cases = iseven_tests,
+    points = 20
+    }
+
+gr.configure_func {
+    function = add(),
+    test_cases = add_tests,
+    points = 20
+    }
+
+gr.configure_func {
+    function = fibonacci(),
+    test_cases = fibonacci_tests,
+    points = 20
+    }
+
+gr.configure_func {
+    function = isPrime(),
+    test_cases = prime_tests,
+    points = 20
+    }
+
+gr.addsubmission(name = "Prof. Denning", path = "Example1", day = 08/21/2024, time = 08:11)
+gr.addsubmission(name = "Warren", path = "Example2", day = 08/21/2024, time = 23:59)
+gr.addsubmission(name = "Daisy", path = "Example3", day = 08/22/2024, time = 02:23)
+
+gr.grade(output = "grades_and_stats.txt")
+~~~~
+
+Finally, we clicked the run button to get the following output which completes the autograding process!
+`grades_and_stats.txt`
+~~~~ none
+Grading submission: Prof. Denning
+  Function: isEven
+      Total score for function: 20.0
+  Function: add
+      Total score for function: 20.0
+  Function: fibonacci
+      Total score for function: 20.0
+  Function: isPrime
+      Total score for function: 20.0
+Final score multiplier (from late/early penalty/reward): 1.02
+Final score for submission: 80.0 * 1.02 = 81.6
+
+Grading submission: Warren
+  Function: isEven
+      Total score for function: 0.0
+  Function: add
+      Total score for function: 5.0
+  Function: fibonacci
+      Total score for function: 4.0
+  Function: isPrime
+      Total score for function: 16.0
+Final score multiplier (from late/early penalty/reward): 1.0
+Final score for submission: 25.0 * 1.0 = 25.0
+
+Grading submission: Daisy
+  Function: isEven
+      Total score for function: 20.0
+  Function: add
+      Total score for function: 5.0
+  Function: fibonacci
+      Total score for function: 20.0
+  Function: isPrime
+      Total score for function: 20.0
+Final score multiplier (from late/early penalty/reward): 0.9
+Final score for submission: 65.0 * 0.9 = 58.5
+
+Statistics:
+Mean score: 55.03333333333333
+Median score: 58.5
+Range of scores: 56.599999999999994
+~~~~
+
+
+<!--   Feel free to modify the following to fit a theme of your choosing   -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet"> <!-- a sans-serif font -->
+<style>  /* A TAYLOR-INSPIRED THEME */
+    body {font-family:'Open Sans',sans-serif;}
+    .md a:link, .md a:visited {color:hsl(106, 57%, 40%); font-family:'Open Sans',sans-serif;}
+    .md table.table th {background-color:hsl(122, 54%, 34%);}
+    .md .noheader th {display:none;}
+    .md .firstcol td:first-child {white-space:pre;color:white;vertical-align:top;font-weight:bold;border-color:black;background:hsla(125, 71%, 31%, 0.644);}
+    .md .firstcol tr:nth-child(even) td:first-child {background:hsl(121, 65%, 29%);}
+</style>
+
+
+<!-- ****************************** -->
+<!--    Leave the content below     -->
+<!-- ****************************** -->
+
+<!-- The script and style below are added for clarity and to workaround a bug -->
+<script>
+    // this is a hack to workaround a bug in Markdeep+Mathjax, where
+    // `&#36;`` is automatically converted to `\(`` and `\)`` too soon.
+    // the following code will replace the innerHTML of all elements
+    // with class "dollar" with a dollar sign.
+    setTimeout(function() {
+        var dollars = document.getElementsByClassName('dollar');
+        for(var i = 0; i < dollars.length; i++) {
+            dollars[i].innerHTML = '&#' + '36;'; // split to prevent conversion to $
+        }
+    }, 1000);
+</script>
+<style>
+    /* adding some styling to <code> tags (but not <pre><code> coding blocks!) */
+    :not(pre) > code {
+        background-color: rgba(0,0,0,0.05);
+        outline: 1px solid rgba(0,0,0,0.15);
+        margin-left: 0.25em;
+        margin-right: 0.25em;
+    }
+    /* fixes table of contents of medium-length document from looking weird if admonitions are behind */
+    .md div.mediumTOC { background: white; }
+    .md div.admonition { position: initial !important; }
+</style>
+
+<!--   Leave the following Markdeep formatting code, as this will format your text above to look nice in a wed browser   -->
+<style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible");</script>
